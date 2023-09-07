@@ -22,16 +22,16 @@ subdomain <- token$aud
 ###### Generate Bearer Token ######
 
 # Construct url
-# The resulting URL should look like: https://subdomain.benchling.com/api/v2/token
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2/token
 api_path <- '/api/v2/token'
 url      <- paste("https://", subdomain, api_path, sep = "")
 
 # Provide Client ID and Secret
-# EDIT: I added these variables to make it easier for customers to input their own values;
-#       can you double check my syntax?
 # INPUT
 client_id       <- "<Replace with your app's client id>"
+# INPUT
 client_secret   <- "<Replace with your app's client secret>"
+
 request_payload <-
   paste("client_id=",client_id,"&client_secret=",client_secret,"&grant_type=client_credentials", sep = "")
 
@@ -54,7 +54,7 @@ access_token <- request_body$access_token
 #############################################################
 
 # Construct url
-# The resulting URL should look like: https://subdomain.benchling.com/api/v2-beta/analysis-steps/ana_ABCD1234
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/analysis-steps/ana_ABCD1234
 api_path <- "/api/v2-beta/analysis-steps/"
 url      <-
   paste("https://", subdomain, api_path, analysis_id, sep = "")
@@ -81,7 +81,7 @@ dataset_id <- c(analysis_body$inputData$datasetIds)
 #############################################################
 
 # Construct url
-# The resulting URL should look like: https://subdomain.benchling.com/api/v2-beta/datasets/dset_bHbGo1FP79Kl)
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/datasets/dset_bHbGo1FP79Kl)
 api_path <- "/api/v2-beta/datasets/"
 url <- paste("https://", subdomain, api_path, dataset_id, sep = "")
 

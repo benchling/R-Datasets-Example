@@ -71,7 +71,6 @@ logistic4 <- function(x, A, B, C, D) {
 
 # Save CSV on local path
 csv_name <- "mortality.csv"
-# EDIT: Can you confirm if this will work for most folks? v
 path     <- dirname(rstudioapi::getSourceEditorContext()$path)
 csv_file <- paste(path, '/', csv_name, sep = "")
 write.csv(csv_df, csv_file, row.names = FALSE)

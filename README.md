@@ -14,5 +14,7 @@ Provided for educational purposes only; not for production use.
 as outputs to a Benchling analysis.
 * `Mortality IC50.csv` contains basic sample data of the form required by `results_analysis.R`
 
-It's recommended to run `get_dataframe.R` and `results_analysis.R` sequentially, since the latter expects
-a dataframe to be imported.
+It's recommended to start by working with `get_dataframe.R` and `results_analysis.R` in order to familiarize
+yourself with the principles involved. For best results, these should be run sequentially, since the latter expects
+a dataframe to be imported. Once you're confident using the scripts and with the configuration in Benchling, the
+techniques involved can be applied to more robust applications using tools like Rshiny.
