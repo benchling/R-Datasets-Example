@@ -152,7 +152,8 @@ if (s3_file_request$status_code == '200')
 
 # Set Image Name and Path (path is set here are the local directory of the R script)
 image_name <- "mortality_24h.html"
-# EDIT: Same here, can we confirm this will work for most folk's environment?
+
+# Save html file on local path
 path       <- dirname(rstudioapi::getSourceEditorContext()$path)
 image_file <- paste(path, '/', image_name, sep = "")
 
