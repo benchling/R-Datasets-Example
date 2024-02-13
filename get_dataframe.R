@@ -1,5 +1,5 @@
 ################################################################################
-# OBJECTIVE: Get Dataset from Benchling and save it as an R Dataset ############
+# OBJECTIVE: Get dataframe from Benchling and save it as an R dataframe ########
 ################################################################################
 
 library(httr)
@@ -7,8 +7,10 @@ library(jsonlite)
 library(base64enc)
 
 # Get Analysis Key from Benchling tenant
+
 # INPUT
-analysis_key <- "<Replace with your analysis step key>"
+#analysis_key <- "<Replace with your analysis step key>"
+
 
 # Get the analysis ID by extracting string prior to : in analysis_key
 analysis_id <- gsub(":.*$", "", analysis_key)
@@ -49,13 +51,13 @@ request_body <- jsonlite::fromJSON(rawToChar(token_request$content))
 # Bearer Token needs to be regenerated every 900 seconds
 access_token <- request_body$access_token
 
-#############################################################
-# Use the Get analysis endpoint and retrieve the dataset id #
-#############################################################
+###############################################################
+# Use the Get analysis endpoint and retrieve the dataframe id #
+###############################################################
 
 # Construct url
-# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/analysis-steps/ana_ABCD1234
-api_path <- "/api/v2-beta/analysis-steps/"
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/analyses/ana_ABCD1234
+api_path <- "/api/v2-beta/analyses/"
 url      <-
   paste("https://", subdomain, api_path, analysis_id, sep = "")
 
@@ -71,22 +73,22 @@ analysis_response <-
 analysis_body <-
   jsonlite::fromJSON(rawToChar(analysis_response$content))
 
-# Get the dataset ID
-# Note: This assumes there is a single input dataset
-dataset_id <- c(analysis_body$inputData$datasetIds)
+# Get the dataframe ID
+# Note: This assumes there is a single input dataframe
+dataframe_id <- c(analysis_body$dataFrameIds)
 
 
-#############################################################
-# Use the Get dataset endpoint and retrieve the dataset id #
-#############################################################
+################################################################
+# Use the Get dataframe endpoint and retrieve the dataframe id #
+################################################################
 
 # Construct url
-# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/datasets/dset_bHbGo1FP79Kl)
-api_path <- "/api/v2-beta/datasets/"
-url <- paste("https://", subdomain, api_path, dataset_id, sep = "")
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/data-frames/dset_bHbGo1FP79Kl)
+api_path <- "/api/v2-beta/data-frames/"
+url <- paste("https://", subdomain, api_path, dataframe_id, sep = "")
 
 # Perform a get request
-dataset_response <-
+dataframe_response <-
   httr::GET(url,
             add_headers(
               Accept = 'application/json',
@@ -94,11 +96,11 @@ dataset_response <-
             ))
 
 # Use the jsonlite library to read the JSON body
-dataset_body <-
-  jsonlite::fromJSON(rawToChar(dataset_response$content))
+dataframe_body <-
+  jsonlite::fromJSON(rawToChar(dataframe_response$content))
 
-# Retrieve the url to retrieve the dataset in CSV format
-dataset_url <- c(dataset_body$manifest$url)
+# Retrieve the url to retrieve the dataframe in CSV format
+dataframe_url <- c(dataframe_body$manifest$url)
 
-# Read the dataset csv, save it as an R dataframe and let the R magic begin
-df <- read.csv(dataset_url)
+# Read the dataframe csv, save it as an R dataframe and let the R magic begin
+df <- read.csv(dataframe_url)
