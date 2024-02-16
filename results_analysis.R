@@ -1,5 +1,5 @@
 ##########################################################################################
-# OBJECTIVE: Send an HTML file of an IC50 Calculation plot and a dataset
+# OBJECTIVE: Send an HTML file of an IC50 Calculation plot and a dataframe
 #            of IC50 statistical results to a Benchling analysis
 #
 # This code requires a dataframe (df) in order to work
@@ -8,7 +8,7 @@
 # (see get_dataframe.R for more detail)
 #
 # Steps -> calculate IC50
-#       -> calculate result dataset and send to Benchling S3 Bucket
+#       -> calculate result dataframe and send to Benchling S3 Bucket
 #       -> create IC50 plot file and send to Benchling S3 Bucket
 #       -> Patch analysis
 ##########################################################################################
@@ -66,7 +66,7 @@ logistic4 <- function(x, A, B, C, D) {
 }
 
 ##########################################################################################
-# Calculate result dataset and send to Benchling S3 Bucket
+# Calculate result dataframe and send to Benchling S3 Bucket
 ##########################################################################################
 
 # Save CSV on local path
@@ -76,36 +76,37 @@ csv_file <- paste(path, '/', csv_name, sep = "")
 write.csv(csv_df, csv_file, row.names = FALSE)
 
 
-############ Use the POST dataset endpoint to create a new dataset ############
+############ Use the POST dataframe endpoint to create a new dataframe ############
 
 # Construct url
-# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/datasets
-api_path <- "/api/v2-beta/datasets"
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/data-frames
+api_path <- "/api/v2-beta/data-frames"
 url      <- paste("https://", subdomain, api_path, sep = "")
 
 # Create a binary file
 my_data <- readBin(csv_file, "raw", 10e6)
 
-# Create nested lists providing csv file name and specifying dataset name
-dataset_payload <-
+# Create nested lists providing csv file name and specifying dataframe name
+dataframe_payload <-
   list(manifest = list(list(fileName = csv_name)), name = 'Mortality_IC50')
 
-# Convert payload to Json format and use POST endpoint to create dataset
-dataset_request <-
+# Convert payload to Json format and use POST endpoint to create dataframe
+dataframe_request <-
   httr::POST(url = url,
-    body = toJSON(dataset_payload, pretty = TRUE, auto_unbox = TRUE),
+    body = toJSON(dataframe_payload, pretty = TRUE, auto_unbox = TRUE),
     httr::accept('application/json'),httr::content_type('application/json'),
     httr::add_headers ('Authorization' = paste("Bearer", access_token)))
 
 # Use the jsonLite library to read the Json body
-dataset_body <-
-  jsonlite::fromJSON(rawToChar(dataset_request$content))
+dataframe_body <-
+  jsonlite::fromJSON(rawToChar(dataframe_request$content))
 
-# Retrieve dataset Id
-result_dataset_id <- dataset_body$id
+# Retrieve dataframe Id
+result_dataframe_id <- dataframe_body$id
 
 # Retrieve S3 PUT url from previous call
-s3_put_url <- dataset_body$manifest$url
+s3_put_url <- dataframe_body$manifest$url
+
 
 ####### Use the PUT file endpoint to upload file in a Benchling S3 Bucket ######
 # Put file in S3 bucket and add [;x-amz-server-side-encryption': 'AES256'] to
@@ -116,31 +117,31 @@ s3_file_request <-
     body = my_data,
     httr::add_headers ('x-amz-server-side-encryption' = 'AES256'))
 
-# Change dataset status to IN PROGRESS after uploading to S3
+# Change dataframe status to IN PROGRESS after uploading to S3
 if (s3_file_request$status_code == '200')
 {
   # Construct url
-  # The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/datasets/data_cACYhKlo)
-  api_path <- "/api/v2-beta/datasets/"
+  # The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/data-frames/data_cACYhKlo)
+  api_path <- "/api/v2-beta/data-frames/"
   url      <-
-    paste("https://", subdomain, api_path, result_dataset_id, sep = "")
+    paste("https://", subdomain, api_path, result_dataframe_id, sep = "")
 
   # Set Payload list as IN PROGRESS
-  dataset_payload <-list(uploadStatus = "IN_PROGRESS")
+  dataframe_payload <-list(uploadStatus = "IN_PROGRESS")
 
-  # Convert payload to Json format and use Patch endpoint to mark dataset upload as in Progress
-  dataset_request  <-
+  # Convert payload to Json format and use Patch endpoint to mark dataframe upload as in Progress
+  dataframe_request  <-
     httr::PATCH(
       url = url,
-      body = toJSON(dataset_payload, pretty = TRUE, auto_unbox = TRUE),
+      body = toJSON(dataframe_payload, pretty = TRUE, auto_unbox = TRUE),
       httr::accept('application/json'),httr::content_type('application/json'),
       httr::add_headers ('Authorization' = paste("Bearer", access_token)))
 
   # Use the jsonLite library to read the Json body
-  dataset_body <-jsonlite::fromJSON(rawToChar(dataset_request$content))
+  dataframe_body <-jsonlite::fromJSON(rawToChar(dataframe_request$content))
 
   # Print status code - 200 = Successful
-  print(dataset_request$status_code)
+  print(dataframe_request$status_code)
 
 }else {
   print('ERROR: Upload to S3 unsuccessful')
@@ -196,7 +197,7 @@ api_path <- "/api/v2-beta/files"
 url      <- paste("https://", subdomain, api_path, sep = "")
 
 # Provide name of file as a payload in a list
-file_payload <- list(name = image_name)
+file_payload <- list(name = image_name, filename = image_name, folderId = folder_id)
 
 # Convert payload to Json format and use POST endpoint to create File
 file_request  <-
@@ -221,7 +222,7 @@ s3_file_request  <-
             body = my_data,
             httr::add_headers ('x-amz-server-side-encryption' = 'AES256'))
 
-# Change dataset status to SUCCEEDED after uploading to S3
+# Change dataframe status to SUCCEEDED after uploading to S3
 if (s3_file_request$status_code == '200')
 {
   # Construct url
@@ -250,25 +251,24 @@ if (s3_file_request$status_code == '200')
 }
 
 ################################################################################
-# Use the PATCH Analysis endpoint to upload file into analysis #################
+# Use the PATCH analyses endpoint to upload file into analyses #################
 ################################################################################
 
 # Construct url
-# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/analysis-steps/ana_Tx98nkEm)
-api_path <- "/api/v2-beta/analysis-steps/"
+# The resulting URL should look like: https://<subdomain>.benchling.com/api/v2-beta/analyses/ana_Tx98nkEm)
+api_path <- "/api/v2-beta/analyses/"
 url      <- paste("https://", subdomain, api_path, analysis_id, sep = "")
 
 
-# Create nested list containing output files and output datasets
-file_data_ids <-
+# Create nested list containing output files and output dataframes
+analysis_body <-
   list(fileIds = list(file_id),
-       datasetIds = list(result_dataset_id))
-outputfiles <- list(outputData = file_data_ids)
+       dataFrameIds = list(result_dataframe_id))
 
-# Convert payload to Json format and use Patch endpoint to update Analyis to include output files and output datasets
+# Convert payload to Json format and use Patch endpoint to update Analyis to include output files and output dataframes
 analysis_request  <-
   httr::PATCH(url = url,
-              body = toJSON(outputfiles, pretty = TRUE, auto_unbox = TRUE),
+              body = toJSON(analysis_body, pretty = TRUE, auto_unbox = TRUE),
               httr::accept('application/json'),httr::content_type('application/json'),
               httr::add_headers ('Authorization' = paste("Bearer", access_token)))
 
