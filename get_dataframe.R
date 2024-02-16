@@ -7,8 +7,8 @@ library(jsonlite)
 library(base64enc)
 
 # Get Analysis Key from Benchling tenant
-
 # INPUT
+#Please uncomment analysis_key client Id and client secret
 #analysis_key <- "<Replace with your analysis step key>"
 
 
@@ -77,6 +77,8 @@ analysis_body <-
 # Note: This assumes there is a single input dataframe
 dataframe_id <- c(analysis_body$dataFrameIds)
 
+# Get the folder ID
+folder_id <- c(analysis_body$folderId)
 
 ################################################################
 # Use the Get dataframe endpoint and retrieve the dataframe id #
