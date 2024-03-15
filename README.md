@@ -1,5 +1,5 @@
 # Sample Code - Working with Datasets Using R
-A repository containing the sample scripts described in the [Working with Datasets Using R](link) developer guide.
+A repository containing the sample scripts described in the [Working with Datasets Using R](https://docs.benchling.com/docs/working-with-datasets-using-r) developer guide.
 
 Provided for educational purposes only; not for production use.
 
